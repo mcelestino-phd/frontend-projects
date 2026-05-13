@@ -1,0 +1,574 @@
+/* ============================================================
+   NEXUS — Catálogo Premium
+   Projeto 1 do portfólio · Mobile-First
+   Técnicas: CSS Grid (grid-template-areas) + Flexbox + Container Queries
+   ============================================================ */
+
+
+/* ─── 1. VARIÁVEIS DE DESIGN (Design Tokens) ─────────────────
+   Centralizar cores, espaçamentos e tipografia em variáveis
+   torna o código fácil de manter e de "trocar de tema".
+   --------------------------------------------------------- */
+:root {
+  /* Paleta — Moderna e Premium */
+  --bg:           #0F172A;   /* fundo geral (azul quase preto) */
+  --surface:      #1E293B;   /* cards e superfícies elevadas */
+  --surface-2:    #273449;   /* hover / superfícies secundárias */
+  --primary:      #38BDF8;   /* azul moderno (links, foco) */
+  --secondary:    #A78BFA;   /* roxo suave (destaques) */
+  --accent:       #22C55E;   /* verde CTA */
+  --text:         #F8FAFC;   /* texto principal */
+  --text-muted:   #94A3B8;   /* texto secundário */
+  --border:       rgba(148, 163, 184, 0.12);
+
+  /* Tipografia */
+  --font-display: "Bricolage Grotesque", serif;
+  --font-body:    "Manrope", system-ui, sans-serif;
+
+  /* Espaçamento (escala consistente) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  /* Outras tokens */
+  --radius:    14px;
+  --radius-lg: 20px;
+  --shadow:    0 1px 0 rgba(255,255,255,0.04) inset,
+               0 10px 30px rgba(0,0,0,0.35);
+  --transition: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+
+/* ─── 2. RESET BÁSICO ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  /* "Glow" sutil de fundo — atmosfera premium */
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(56,189,248,0.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(167,139,250,0.07), transparent 60%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+ul { list-style: none; padding: 0; margin: 0; }
+
+
+/* ─── 3. LAYOUT PRINCIPAL (CSS GRID + grid-template-areas) ───
+   AQUI ESTÁ O CORAÇÃO DA TÉCNICA #1.
+   Em vez de calcular colunas e linhas com números, damos NOMES
+   às regiões e desenhamos o layout como um mapa visual.
+   --------------------------------------------------------- */
+
+/* MOBILE FIRST — uma única coluna, áreas empilhadas */
+.layout {
+  display: grid;
+  min-height: 100vh;
+  gap: var(--space-4);
+  padding: var(--space-4);
+
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "header"
+    "nav"
+    "main"
+    "sidebar"
+    "footer";
+}
+
+/* TABLET (≥ 720px) — sidebar aparece ao lado do main */
+@media (min-width: 720px) {
+  .layout {
+    gap: var(--space-5);
+    padding: var(--space-5);
+
+    grid-template-columns: 1fr 280px;
+    grid-template-areas:
+      "header  header"
+      "nav     nav"
+      "main    sidebar"
+      "footer  footer";
+  }
+}
+
+/* DESKTOP (≥ 1080px) — nav vira coluna lateral esquerda */
+@media (min-width: 1080px) {
+  .layout {
+    gap: var(--space-6);
+    padding: var(--space-6) var(--space-8);
+    max-width: 1440px;
+    margin: 0 auto;
+
+    grid-template-columns: 200px 1fr 300px;
+    grid-template-areas:
+      "header  header   header"
+      "nav     main     sidebar"
+      "footer  footer   footer";
+  }
+}
+
+
+/* ─── 4. HEADER ──────────────────────────────────────────── */
+.header {
+  display: flex;            /* Flexbox para alinhar logo / busca / ações */
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(10px);
+}
+
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+.header__logo-mark {
+  color: var(--primary);
+  font-size: 1.4em;
+  transform: rotate(45deg);
+  display: inline-block;
+}
+
+.header__search {
+  flex: 1;                  /* ocupa espaço restante (Flexbox) */
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-4);
+  transition: border-color var(--transition);
+}
+.header__search:focus-within { border-color: var(--primary); }
+.header__search-icon { width: 16px; height: 16px; color: var(--text-muted); }
+.header__search input {
+  flex: 1;
+  background: none;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  font-family: inherit;
+}
+.header__search input::placeholder { color: var(--text-muted); }
+
+.header__actions { display: flex; gap: var(--space-2); }
+
+.icon-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: color var(--transition), border-color var(--transition);
+}
+.icon-btn:hover { color: var(--text); border-color: var(--primary); }
+.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--accent);
+  color: #052e16;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+}
+
+
+/* ─── 5. NAVEGAÇÃO ───────────────────────────────────────── */
+.nav {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+}
+
+/* Mobile: lista horizontal com scroll */
+.nav__list {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav__list::-webkit-scrollbar { display: none; }
+
+.nav__link {
+  display: inline-block;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background var(--transition), color var(--transition);
+}
+.nav__link:hover { color: var(--text); background: var(--surface-2); }
+.nav__link--active {
+  background: var(--primary);
+  color: #052033;
+}
+
+/* Desktop: vira menu vertical */
+@media (min-width: 1080px) {
+  .nav__list { flex-direction: column; gap: var(--space-1); }
+  .nav__link { display: block; }
+}
+
+
+/* ─── 6. ÁREA PRINCIPAL ─────────────────────────────────── */
+.main__intro { margin-bottom: var(--space-6); }
+
+.main__eyebrow {
+  color: var(--secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-2);
+}
+.main__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 4vw + 1rem, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0 0 var(--space-3);
+}
+.main__title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--primary);
+}
+.main__subtitle {
+  color: var(--text-muted);
+  max-width: 56ch;
+  margin: 0;
+}
+
+
+/* ─── 7. GRID DE PRODUTOS ─────────────────────────────────
+   O grid externo organiza QUANTOS cartões cabem por linha.
+   Cada cartão é um CONTAINER independente (próxima seção).
+   --------------------------------------------------------- */
+.products {
+  display: grid;
+  gap: var(--space-4);
+  /* auto-fit + minmax = colunas responsivas sem media queries */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+
+/* ─── 8. CARTÕES (CONTAINER QUERIES — A ESTRELA DO PROJETO) ───
+   AQUI ESTÁ A TÉCNICA #3, A MAIS MODERNA.
+   .card-wrapper se torna um "container de consulta": filhos
+   podem reagir à LARGURA DO PRÓPRIO WRAPPER, e não à do ecrã.
+   Isso significa que o MESMO cartão pode aparecer em layouts
+   diferentes dependendo de onde ele estiver no grid.
+   ------------------------------------------------------------ */
+.card-wrapper {
+  container-type: inline-size;   /* observamos a largura */
+  container-name: card;          /* nome opcional para clareza */
+}
+
+.card {
+  display: flex;                 /* Flexbox interno */
+  flex-direction: column;        /* PADRÃO: empilhado (mobile) */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform var(--transition), border-color var(--transition);
+  height: 100%;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
+
+.card__media {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--surface-2), var(--bg));
+  position: relative;
+}
+
+.card__image {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+/* "Ilustrações" em CSS puro — sem precisar de imagens reais */
+.card__image::before {
+  content: "";
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.18), transparent 60%),
+              linear-gradient(135deg, var(--primary), var(--secondary));
+  filter: blur(0.5px);
+  box-shadow: 0 20px 40px rgba(56,189,248,0.25);
+}
+.card__image--audio::before    { border-radius: 40% 40% 50% 50% / 60% 60% 40% 40%; }
+.card__image--watch::before    { border-radius: 24px; width: 50%; height: 65%; }
+.card__image--lamp::before     { background: linear-gradient(180deg, #FCD34D, #F59E0B); border-radius: 50% 50% 20% 20%; }
+.card__image--charger::before  { border-radius: 50%; width: 55%; height: 50%; }
+.card__image--speaker::before  { border-radius: 30px 30px 60% 60%; background: linear-gradient(180deg, var(--text-muted), var(--surface-2)); }
+.card__image--keyboard::before { border-radius: 12px; width: 75%; height: 35%; background: linear-gradient(135deg, var(--surface-2), #0b1220); }
+
+.card__badge {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  background: var(--accent);
+  color: #052e16;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  z-index: 1;
+}
+.card__badge--hot { background: var(--secondary); color: #1a0a3a; }
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  flex: 1;
+}
+
+.card__category {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin: 0;
+}
+.card__title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.card__desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.card__footer {
+  margin-top: auto;            /* empurra para o fim do card */
+  padding-top: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.card__price {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+.card__cta {
+  background: var(--accent);
+  color: #052e16;
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 999px;
+  transition: transform var(--transition), filter var(--transition);
+}
+.card__cta:hover { transform: translateY(-1px); filter: brightness(1.1); }
+
+
+/* ✨ A MÁGICA: regra @container ✨
+   Quando o WRAPPER tiver pelo menos 460px de largura,
+   reorganizamos o cartão em layout horizontal (mídia + texto lado a lado).
+   Repare: NÃO usamos @media — usamos @container.
+   Isso significa que se você reusar este cartão em uma sidebar estreita,
+   ele continuará empilhado, mesmo que a tela seja enorme. */
+@container card (min-width: 460px) {
+  .card {
+    flex-direction: row;
+  }
+  .card__media {
+    width: 45%;
+  }
+  .card__image {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 200px;
+  }
+  .card__body {
+    width: 55%;
+  }
+}
+
+
+/* ─── 8b. ESTADO VAZIO (nenhum produto encontrado) ───────── */
+.empty {
+  margin-top: var(--space-6);
+  padding: var(--space-8) var(--space-5);
+  text-align: center;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+}
+.empty__title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+}
+.empty__text {
+  color: var(--text-muted);
+  margin: 0 0 var(--space-5);
+}
+.empty__reset {
+  background: var(--primary);
+  color: #052033;
+  font-weight: 600;
+  padding: var(--space-2) var(--space-5);
+  border-radius: 999px;
+  transition: filter var(--transition);
+}
+.empty__reset:hover { filter: brightness(1.1); }
+
+
+/* ─── 9. SIDEBAR (FILTROS) ──────────────────────────────── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  height: fit-content;        /* não estica até o fim da grade */
+}
+
+.sidebar__title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-3);
+  color: var(--text);
+}
+.sidebar__options { display: flex; flex-direction: column; gap: var(--space-2); }
+.sidebar__options label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: var(--space-1) 0;
+  transition: color var(--transition);
+}
+.sidebar__options label:hover { color: var(--text); }
+.sidebar__options input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--text-muted);
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  transition: all var(--transition);
+}
+.sidebar__options input[type="checkbox"]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.sidebar__options input[type="checkbox"]:checked::after {
+  content: "✓";
+  color: #052033;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.sidebar__cta {
+  background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(167,139,250,0.10));
+  border: 1px solid rgba(56,189,248,0.25);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+.sidebar__cta-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+}
+.sidebar__cta-text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+
+/* ─── 10. RODAPÉ ─────────────────────────────────────────── */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.footer__brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text);
+}
+.footer__copy { margin: 0; flex: 1; min-width: 200px; }
+.footer__links { display: flex; gap: var(--space-4); }
+.footer__links a { transition: color var(--transition); }
+.footer__links a:hover { color: var(--primary); }
+
+
+/* ─── 11. FOCO ACESSÍVEL ─────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
